@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div class="panel stack fade-in">
+    <div class="text-center">
+      <h1>🎯 Word Guess Game</h1>
+      <p style="font-size:1.1rem; margin-bottom:8px;">Challenge your vocabulary with this exciting word-guessing game!</p>
+      <p class="text-muted">Guess the 5-letter word in 5 tries. Colored tiles show how close your guess was.</p>
+    </div>
+
+    {% if user %}
+      <div class="stack">
+        <div class="text-center">
+          <h3>Welcome back, {{ user.username }}! 👋</h3>
+          {% if user.is_admin %}
+            <p class="text-muted">Administrator access enabled</p>
+          {% endif %}
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">5</div>
+            <div class="stat-label">Max Guesses</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Games per Day</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">5</div>
+            <div class="stat-label">Letter Words</div>
+          </div>
+        </div>
+
+        <form class="row-gap" action="{{ url_for('start_game') }}" method="post" style="justify-content:center">
+          <button class="btn btn-lg" type="submit">🚀 Start New Game</button>
+        </form>
+        
+        <div class="text-center">
+          <p class="text-muted">(Maximum 3 games per day)</p>
+        </div>
+
+        <div class="row-gap" style="justify-content:center; margin-top:20px">
+          <a class="btn secondary" href="{{ url_for('play', game_id=0) }}">🔗 Open Specific Game</a>
+          {% if user.is_admin %}
+            <a class="btn secondary" href="{{ url_for('admin_reports') }}">📊 Admin Reports</a>
+          {% endif %}
+        </div>
+      </div>
+    {% else %}
+      <div class="stack">
+        <div class="text-center">
+          <h3>Ready to Play? 🎮</h3>
+          <p class="text-muted">Sign in to start your word-guessing adventure!</p>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">🎯</div>
+            <div class="stat-label">Strategic</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">🧠</div>
+            <div class="stat-label">Challenging</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">🏆</div>
+            <div class="stat-label">Rewarding</div>
+          </div>
+        </div>
+
+        <div class="row-gap" style="justify-content:center">
+          <a class="btn btn-lg" href="{{ url_for('login') }}">🔑 Login to Play</a>
+          <a class="btn secondary btn-lg" href="{{ url_for('register') }}">✨ Create Account</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

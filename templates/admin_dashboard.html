@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Guess The Word</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-body">
+    <!-- Admin Header -->
+    <header class="admin-header">
+        <div class="admin-nav">
+            <div class="admin-brand">
+                <i class="fas fa-brain"></i>
+                <span>Guess The Word</span>
+                <span class="admin-badge">Admin</span>
+            </div>
+            <div class="admin-actions">
+                <a href="{{ url_for('index') }}" class="btn btn-outline">
+                    <i class="fas fa-home"></i>
+                    Home
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main class="dashboard-main">
+        <div class="container">
+            <!-- Stats Cards -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card" data-delay="0">
+                        <div class="stat-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number" data-target="127">0</h3>
+                            <p class="stat-label">Games Played Today</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" data-delay="100">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number" data-target="89">0</h3>
+                            <p class="stat-label">Wins Today</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" data-delay="200">
+                        <div class="stat-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number" data-target="1247">0</h3>
+                            <p class="stat-label">Total Wins</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" data-delay="300">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-number" data-target="156">0</h3>
+                            <p class="stat-label">Total Players</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="charts-grid">
+                    <!-- Daily Games Chart -->
+                    <div class="chart-card" data-delay="400">
+                        <div class="chart-header">
+                            <h3>Games Played (Last 7 Days)</h3>
+                            <div class="chart-controls">
+                                <button class="chart-btn active" data-period="7">7D</button>
+                                <button class="chart-btn" data-period="30">30D</button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="dailyGamesChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Win/Loss Chart -->
+                    <div class="chart-card" data-delay="500">
+                        <div class="chart-header">
+                            <h3>Win/Loss Ratio</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="winLossChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Management Section -->
+            <section class="table-section">
+                <div class="table-card" data-delay="600">
+                    <div class="table-header">
+                        <h3>User Management</h3>
+                        <div class="table-controls">
+                            <input type="search" placeholder="Search users..." class="search-input" id="userSearch">
+                            <button class="btn btn-outline" onclick="refreshUsers()">
+                                <i class="fas fa-sync"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Admin Status</th>
+                                    <th>Games Played</th>
+                                    <th>Wins</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Top Players Table -->
+            <section class="table-section">
+                <div class="table-card" data-delay="700">
+                    <div class="table-header">
+                        <h3>Top Players</h3>
+                        <div class="table-controls">
+                            <input type="search" placeholder="Search players..." class="search-input">
+                            <button class="btn btn-outline">
+                                <i class="fas fa-download"></i>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Player</th>
+                                    <th>Games Played</th>
+                                    <th>Wins</th>
+                                    <th>Win Rate</th>
+                                    <th>Last Played</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="rank-badge rank-1">1</span></td>
+                                    <td>
+                                        <div class="player-info">
+                                            <div class="player-avatar">W</div>
+                                            <span>WordMaster</span>
+                                        </div>
+                                    </td>
+                                    <td>45</td>
+                                    <td>42</td>
+                                    <td><span class="win-rate">93.3%</span></td>
+                                    <td>2 hours ago</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="rank-badge rank-2">2</span></td>
+                                    <td>
+                                        <div class="player-info">
+                                            <div class="player-avatar">B</div>
+                                            <span>BrainTeaser</span>
+                                        </div>
+                                    </td>
+                                    <td>38</td>
+                                    <td>35</td>
+                                    <td><span class="win-rate">92.1%</span></td>
+                                    <td>1 hour ago</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="rank-badge rank-3">3</span></td>
+                                    <td>
+                                        <div class="player-info">
+                                            <div class="player-avatar">L</div>
+                                            <span>LetterLover</span>
+                                        </div>
+                                    </td>
+                                    <td>52</td>
+                                    <td>47</td>
+                                    <td><span class="win-rate">90.4%</span></td>
+                                    <td>30 min ago</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="rank-badge">4</span></td>
+                                    <td>
+                                        <div class="player-info">
+                                            <div class="player-avatar">P</div>
+                                            <span>PuzzlePro</span>
+                                        </div>
+                                    </td>
+                                    <td>29</td>
+                                    <td>26</td>
+                                    <td><span class="win-rate">89.7%</span></td>
+                                    <td>4 hours ago</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="rank-badge">5</span></td>
+                                    <td>
+                                        <div class="player-info">
+                                            <div class="player-avatar">G</div>
+                                            <span>GuessGuru</span>
+                                        </div>
+                                    </td>
+                                    <td>41</td>
+                                    <td>36</td>
+                                    <td><span class="win-rate">87.8%</span></td>
+                                    <td>6 hours ago</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Admin Dashboard specific functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate counters
+            animateCounters();
+            
+            // Initialize charts
+            initDailyGamesChart();
+            initWinLossChart();
+            
+            // Table search
+            initTableSearch();
+            
+            // Load users
+            loadUsers();
+        });
+
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            counters.forEach(counter => {
+                const target = parseInt(counter.dataset.target);
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    counter.textContent = Math.floor(current);
+                }, 16);
+            });
+        }
+
+        function initDailyGamesChart() {
+            const ctx = document.getElementById('dailyGamesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Games Played',
+                        data: [45, 52, 38, 67, 89, 76, 54],
+                        backgroundColor: 'rgba(25, 229, 111, 0.8)',
+                        borderColor: '#19e56f',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#9ca3af'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#9ca3af'
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+
+        function initWinLossChart() {
+            const ctx = document.getElementById('winLossChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Wins', 'Losses'],
+                    datasets: [{
+                        data: [70, 30],
+                        backgroundColor: ['#19e56f', '#ffd84d'],
+                        borderWidth: 0,
+                        cutout: '60%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#9ca3af',
+                                padding: 20
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+
+        function initTableSearch() {
+            const searchInput = document.querySelector('.search-input');
+            const tableRows = document.querySelectorAll('.data-table tbody tr');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                tableRows.forEach(row => {
+                    const playerName = row.querySelector('.player-info span')?.textContent.toLowerCase();
+                    if (playerName && playerName.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/admin/users');
+                const users = await response.json();
+                displayUsers(users);
+            } catch (error) {
+                console.error('Error loading users:', error);
+                // For now, show dummy data
+                displayUsers([
+                    { username: 'AdminUser', is_admin: true, games_played: 0, wins: 0 },
+                    { username: 'Player1', is_admin: false, games_played: 5, wins: 3 },
+                    { username: 'Player2', is_admin: false, games_played: 8, wins: 6 }
+                ]);
+            }
+        }
+
+        function displayUsers(users) {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="player-info">
+                            <div class="player-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                            <span>${user.username}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="admin-badge ${user.is_admin ? 'active' : 'inactive'}">
+                            ${user.is_admin ? 'Admin' : 'User'}
+                        </span>
+                    </td>
+                    <td>${user.games_played || 0}</td>
+                    <td>${user.wins || 0}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${user.is_admin ? 
+                                `<button class="btn btn-outline btn-sm" onclick="toggleAdmin('${user.username}', 'remove')">
+                                    <i class="fas fa-user-minus"></i> Remove Admin
+                                </button>` :
+                                `<button class="btn btn-primary btn-sm" onclick="toggleAdmin('${user.username}', 'make')">
+                                    <i class="fas fa-user-plus"></i> Make Admin
+                                </button>`
+                            }
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        async function toggleAdmin(username, action) {
+            try {
+                const response = await fetch('/admin/make_admin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        action: action
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(result.message);
+                    loadUsers(); // Refresh the user list
+                } else {
+                    alert(result.error || 'Failed to update admin status');
+                }
+            } catch (error) {
+                console.error('Error updating admin status:', error);
+                alert('Failed to update admin status');
+            }
+        }
+
+        function refreshUsers() {
+            loadUsers();
+        }
+    </script>
+</body>
+</html>

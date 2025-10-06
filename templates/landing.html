@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess The Word - Sharpen Your Mind</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-">
+                <i class="fas fa-brain"></i>
+                <span>Guess The Word</span>
+            </div>
+            <div class="nav-links">
+                <a href="#rules" class="nav-link">Rules</a>
+                <a href="#help" class="nav-link">Help</a>
+                {% if user %}
+                    <span class="nav-link">Welcome, {{ user.username }}!</span>
+                    <a href="{{ url_for('logout') }}" class="nav-link auth-link">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-link auth-link">Login</a>
+                    <a href="{{ url_for('register') }}" class="nav-link auth-link primary">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <!-- Centered Main Content -->
+            <div class="hero-main">
+                <h1 class="hero-title">
+                    <span class="glow-">Guess The Word</span>
+                </h1>
+                <p class="hero-subtitle">Sharpen your mind. 5 letters. 5 tries.</p>
+                <div class="hero-buttons">
+                    {% if user %}
+                        <button class="btn btn-primary" id="startGameBtn">
+                            <i class="fas fa-play"></i>
+                            Start New Game
+                        </button>
+                        {% if user.is_admin %}
+                            <button class="btn btn-outline" onclick="window.location.href='{{ url_for('admin_reports') }}'">
+                                <i class="fas fa-chart-bar"></i>
+                                Admin Dashboard
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        <button class="btn btn-primary" onclick="window.location.href='{{ url_for('register') }}'">
+                            <i class="fas fa-user-plus"></i>
+                            Get Started
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.location.href='{{ url_for('login') }}'">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Bottom Left/Right Elements -->
+            <div class="hero-bottom">
+                <div class="bottom-left">
+                    <button class="btn btn-outline" onclick="scrollToSection('rules')">
+                        <i class="fas fa-book"></i>
+                        Rules
+                    </button>
+                    <button class="btn btn-outline" onclick="scrollToSection('help')">
+                        <i class="fas fa-question-circle"></i>
+                        Help
+                    </button>
+                </div>
+                <div class="bottom-right">
+                    <div class="word-display">
+                        <div class="letter-tile" data-letter="G">G</div>
+                        <div class="letter-tile" data-letter="U">U</div>
+                        <div class="letter-tile" data-letter="E">E</div>
+                        <div class="letter-tile" data-letter="S">S</div>
+                        <div class="letter-tile" data-letter="S">S</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rules Section -->
+    <section id="rules" class="rules-section">
+        <div class="container">
+            <h2 class="section-title">How to Play</h2>
+            <div class="rules-grid">
+                <div class="rule-card" data-delay="0">
+                    <div class="rule-icon">
+                        <i class="fas fa-keyboard"></i>
+                    </div>
+                    <h3>Guess the Word</h3>
+                    <p>Enter a 5-letter word and press Enter to submit your guess.</p>
+                </div>
+                <div class="rule-card" data-delay="200">
+                    <div class="rule-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3>Color Feedback</h3>
+                    <p>Green means correct letter in correct position. Yellow means correct letter in wrong position.</p>
+                </div>
+                <div class="rule-card" data-delay="400">
+                    <div class="rule-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>Win in 5 Tries</h3>
+                    <p>You have 5 attempts to guess the word. Use the color clues to narrow down your options.</p>
+                </div>
+                <div class="rule-card" data-delay="600">
+                    <div class="rule-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <h3>Daily Limit</h3>
+                    <p>Play up to 3 games per day. New games reset at midnight.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Help Section -->
+    <section id="help" class="help-section">
+        <div class="container">
+            <h2 class="section-title">Need Help?</h2>
+            <div class="help-content">
+                <div class="help-card">
+                    <h3><i class="fas fa-lightbulb"></i> Tips for Success</h3>
+                    <ul>
+                        <li>Start with common vowels and consonants</li>
+                        <li>Use the color feedback strategically</li>
+                        <li>Eliminate impossible letters quickly</li>
+                        <li>Think about word patterns and common endings</li>
+                    </ul>
+                </div>
+                <div class="help-card">
+                    <h3><i class="fas fa-cog"></i> Game Settings</h3>
+                    <ul>
+                        <li>Words are always 5 letters long</li>
+                        <li>All words are common English words</li>
+                        <li>No proper nouns or abbreviations</li>
+                        <li>Case insensitive input</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popups / Modals -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="popupContainer" class="popup-container">
+          {% for category, m in messages %}
+            <div class="popup-card {{category}}">
+              {% if category == 'win' %}
+                <div class="popup-icon success"><i class="fas fa-trophy"></i></div>
+                <h3>Congratulations!</h3>
+                <p>{{ m }}</p>
+                <canvas id="confettiCanvas"></canvas>
+              {% elif category == 'loss' %}
+                <div class="popup-icon error"><i class="fas fa-times-circle"></i></div>
+                <h3>Better luck next time</h3>
+                <p>{{ m }}</p>
+              {% elif category == 'quota' %}
+                <div class="popup-icon warn"><i class="fas fa-hourglass-end"></i></div>
+                <h3>Daily limit reached</h3>
+                <p>{{ m }}</p>
+              {% else %}
+                <div class="popup-icon info"><i class="fas fa-info-circle"></i></div>
+                <h3>Notice</h3>
+                <p>{{ m }}</p>
+              {% endif %}
+              <div class="popup-actions">
+                <button class="btn btn-primary" id="popupCloseBtn">OK</button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Guess The Word. Built with Flask & lots of creativity.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

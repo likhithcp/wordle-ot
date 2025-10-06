@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game #{{game.id}} - Guess The Word</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="game-body">
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <!-- Game Header -->
+    <header class="game-header">
+        <div class="game-nav">
+            <div class="game-brand">
+                <i class="fas fa-brain"></i>
+                <span>Guess The Word</span>
+            </div>
+            <div class="game-actions">
+                <a href="{{ url_for('index') }}" class="btn btn-outline">
+                    <i class="fas fa-home"></i>
+                    Home
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Game Content -->
+    <main class="game-main">
+        <div class="game-container">
+            <!-- Game Info -->
+            <div class="game-info">
+                <h2>Game #{{game.id}}</h2>
+                <div class="game-stats">
+                    <div class="stat">
+                        <span class="stat-label">Guesses</span>
+                        <span class="stat-value">{{guesses}} / 5</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Status</span>
+                        <span class="stat-value">
+                            {% if game.finished %}
+                                {% if game.won %}
+                                    <span class="status-won">Won!</span>
+                                {% else %}
+                                    <span class="status-lost">Lost</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="status-playing">Playing</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Board -->
+            <div class="game-board">
+                {% for row in display %}
+                    <div class="board-row">
+                        {% for cell in row %}
+                            <div class="game-tile {{cell.color}}">
+                                <span class="tile-letter">{{cell.ch}}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                
+                <!-- Empty rows for remaining guesses -->
+                {% for i in range(guesses, 5) %}
+                    <div class="board-row">
+                        {% for j in range(5) %}
+                            <div class="game-tile empty">
+                                <span class="tile-letter"></span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Game Input -->
+            {% if not game.finished and guesses < 5 %}
+                <div class="game-input-section">
+                    <form class="game-form" method="post">
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                name="guess" 
+                                maxlength="5" 
+                                required 
+                                class="guess-input"
+                                placeholder="Enter your guess..."
+                                autocomplete="off"
+                                style="text-transform:uppercase"
+                            />
+                            <button type="submit" class="btn btn-primary submit-btn">
+                                <i class="fas fa-paper-plane"></i>
+                                Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            {% else %}
+                <div class="game-result">
+                    {% if game.finished %}
+                        {% if game.won %}
+                            <div class="result-message success">
+                                <i class="fas fa-trophy"></i>
+                                <h3>Congratulations! You won!</h3>
+                                <p>You guessed the word correctly!</p>
+                            </div>
+                        {% else %}
+                            <div class="result-message error">
+                                <i class="fas fa-times-circle"></i>
+                                <h3>Game Over</h3>
+                                <p>Better luck next time!</p>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    <div class="result-actions">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">
+                            <i class="fas fa-play"></i>
+                            New Game
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Game-specific functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const guessInput = document.querySelector('.guess-input');
+            if (guessInput) {
+                guessInput.focus();
+                
+                // Auto-uppercase input
+                guessInput.addEventListener('input', function() {
+                    this.value = this.value.toUpperCase();
+                });
+                
+                // Submit on Enter
+                guessInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        this.closest('form').submit();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

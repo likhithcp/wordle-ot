@@ -1,0 +1,124 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="panel stack fade-in">
+  <div class="row-gap" style="justify-content:space-between; align-items:center">
+    <div>
+      <h2>📊 Admin Reports</h2>
+      <p class="text-muted">Generate comprehensive analytics and performance insights</p>
+    </div>
+    <a class="btn secondary" href="{{ url_for('index') }}">← Back to Home</a>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number">📅</div>
+      <div class="stat-label">Daily Reports</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">👤</div>
+      <div class="stat-label">User Analytics</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">📈</div>
+      <div class="stat-label">Performance</div>
+    </div>
+  </div>
+
+  <div class="row-gap" style="gap:40px">
+    <!-- Daily Report Section -->
+    <div class="panel-sm">
+      <div class="text-center" style="margin-bottom:24px">
+        <h3>📅 Daily Performance Report</h3>
+        <p class="text-muted">Get insights for a specific date</p>
+      </div>
+      
+      <form class="form" method="post">
+        <div class="field">
+          <label for="rep-date">Select Date</label>
+          <input id="rep-date" type="date" name="date" required>
+        </div>
+        <div class="text-center">
+          <button class="btn" name="report_day" type="submit">📊 Generate Day Report</button>
+        </div>
+      </form>
+
+      {% if day_report %}
+        <div class="panel-sm" style="background:rgba(99,102,241,.1); border-color:rgba(99,102,241,.3); margin-top:20px">
+          <div class="text-center">
+            <h4 style="color:var(--primary); margin-bottom:16px">📈 Report for {{day_report.date}}</h4>
+            <div class="stats-grid" style="margin:0">
+              <div class="stat-card" style="background:var(--panel); border:1px solid var(--border)">
+                <div class="stat-number" style="color:var(--success)">{{day_report.num_users}}</div>
+                <div class="stat-label">Active Users</div>
+              </div>
+              <div class="stat-card" style="background:var(--panel); border:1px solid var(--border)">
+                <div class="stat-number" style="color:var(--primary)">{{day_report.correct_guesses}}</div>
+                <div class="stat-label">Games Won</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- User Report Section -->
+    <div class="panel-sm">
+      <div class="text-center" style="margin-bottom:24px">
+        <h3>👤 User Performance Report</h3>
+        <p class="text-muted">Analyze individual user statistics</p>
+      </div>
+      
+      <form class="form" method="post">
+        <div class="field">
+          <label for="rep-username">Username</label>
+          <input id="rep-username" name="username" required placeholder="Enter username to analyze" />
+        </div>
+        <div class="text-center">
+          <button class="btn" name="report_user" type="submit">🔍 Generate User Report</button>
+        </div>
+      </form>
+
+      {% if user_report %}
+        <div class="stack" style="margin-top:20px">
+          <div class="text-center">
+            <h4 style="color:var(--primary); margin-bottom:16px">📊 Performance Report for {{user_report.username}}</h4>
+          </div>
+          
+          <div class="panel-sm" style="background:var(--panel-2); border:1px solid var(--border)">
+            <table>
+              <thead>
+                <tr>
+                  <th>📅 Date</th>
+                  <th>🎯 Words Tried</th>
+                  <th>✅ Correct Guesses</th>
+                  <th>📈 Success Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in user_report.rows %}
+                  <tr>
+                    <td><strong>{{r.date}}</strong></td>
+                    <td>{{r.words_tried}}</td>
+                    <td>
+                      <span style="color:var(--success); font-weight:600">{{r.correct}}</span>
+                    </td>
+                    <td>
+                      {% if r.words_tried > 0 %}
+                        <span style="color:var(--primary); font-weight:600">
+                          {{ "%.1f"|format((r.correct / r.words_tried * 100)) }}%
+                        </span>
+                      {% else %}
+                        <span style="color:var(--muted)">N/A</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Signup - Guess The Word</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="auth-body">
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="interactive-squares" id="interactiveSquares"></div>
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <!-- Back to Home -->
+    <div class="back-home">
+        <a href="{{ url_for('index') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to Home
+        </a>
+    </div>
+
+    <!-- Auth Container -->
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Morphing Panel -->
+            <div class="morphing-panel" id="morphingPanel"></div>
+            
+            <!-- Signup Form (Left) -->
+            <div class="auth-form signup-form {% if form_type == 'register' %}active{% endif %}" id="signupForm">
+                <div class="form-header">
+                    <h2>Create Account</h2>
+                    <p>Join the word-guessing community!</p>
+                </div>
+                <form method="post" class="form" action="{{ url_for('register') }}">
+                    <div class="form-group">
+                        <label for="signup-username">Username</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="signup-username" name="username" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <div class="input-wrapper">
+                            <button type="button" class="toggle-pass" data-target="signup-password" aria-label="Show password"><i class="fas fa-eye"></i></button>
+                            <input type="password" id="signup-password" name="password" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary full-width">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account
+                    </button>
+                </form>
+                <div class="form-footer">
+                    <p>Already have an account? <a href="{{ url_for('login') }}" class="toggle-form" data-target="login">Login here</a></p>
+                </div>
+            </div>
+
+            <!-- Login Form (Right) -->
+            <div class="auth-form login-form {% if form_type == 'login' %}active{% endif %}" id="loginForm">
+                <div class="form-header">
+                    <h2>Welcome Back!</h2>
+                    <p>Sign in to continue your word journey</p>
+                </div>
+                <form method="post" class="form" action="{{ url_for('login') }}">
+                    <div class="form-group">
+                        <label for="login-username">Username</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="login-username" name="username" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div class="input-wrapper">
+                            <button type="button" class="toggle-pass" data-target="login-password" aria-label="Show password"><i class="fas fa-eye"></i></button>
+                            <input type="password" id="login-password" name="password" required>
+                        </div>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember">
+                            <span class="checkmark"></span>
+                            Remember me
+                        </label>
+                        <a href="#" class="forgot-password">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary full-width">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </button>
+                </form>
+                <div class="form-footer">
+                    <p>New to the game? <a href="{{ url_for('register') }}" class="toggle-form" data-target="signup">Create account</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Auth-specific interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            const morphingPanel = document.getElementById('morphingPanel');
+            const signupForm = document.getElementById('signupForm');
+            const loginForm = document.getElementById('loginForm');
+            const toggleLinks = document.querySelectorAll('.toggle-form');
+
+            toggleLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.dataset.target;
+                    
+                    if (target === 'signup') {
+                        signupForm.classList.add('active');
+                        loginForm.classList.remove('active');
+                        morphingPanel.style.transform = 'translateX(0)';
+                    } else {
+                        loginForm.classList.add('active');
+                        signupForm.classList.remove('active');
+                        morphingPanel.style.transform = 'translateX(100%)';
+                    }
+                });
+            });
+
+            // Form validation
+            const forms = document.querySelectorAll('.form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const inputs = this.querySelectorAll('input[required]');
+                    let isValid = true;
+                    
+                    inputs.forEach(input => {
+                        if (!input.value.trim()) {
+                            isValid = false;
+                            input.classList.add('error');
+                        } else {
+                            input.classList.remove('error');
+                        }
+                    });
+                    
+                    if (!isValid) {
+                        e.preventDefault();
+                    }
+                });
+            });
+
+            // Password toggles
+            document.querySelectorAll('.toggle-pass').forEach(btn => {
+                btn.addEventListener('click', function(){
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    if(!input) return;
+                    const isPassword = input.getAttribute('type') === 'password';
+                    input.setAttribute('type', isPassword ? 'text' : 'password');
+                    this.innerHTML = isPassword ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
